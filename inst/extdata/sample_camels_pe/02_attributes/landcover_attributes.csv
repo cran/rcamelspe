@@ -1,0 +1,3 @@
+"gauge_id","agricul_perc","forest_perc","non_veget_perc","non_woody_perc","water_perc","non_forest_perc","non_identi_perc","land_dominant_class"
+"PE_110139",1.911,1.827,0.713,95.244,0.305,0,0,"non_woody_perc"
+"PE_111151",11.382,3.511,13.845,71.132,0.13,0,0,"non_woody_perc"

@@ -1,0 +1,3 @@
+"gauge_id","gauge_name","gauge_region","gauge_lat","gauge_lon","gauge_elev","gauge_record_start","gauge_record_end","gauge_perc_obs","name_cat","is_nested","nested_group_id","nested_group_size","downstream_gauge_id","upstream_gauge_id"
+"PE_110139","Picoy","Pacific",-10.922,-76.736,3037,2021-09-01,2025-12-31,9.63,"Cuenca Huaura",true,"PE_4724966C",2,"PE_4724966C","NONE"
+"PE_111151","Puente Magdalena","Pacific",-11.696,-76.858,872,1981-01-01,2025-12-31,56.52,"Cuenca Chillón",true,"PE_212500",4,"PE_212500","PE_47E9F488"

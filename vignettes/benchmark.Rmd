@@ -1,0 +1,286 @@
+---
+title: "Rendimiento de rcamelspe: comparación reproducible con RCamelsPE"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Rendimiento de rcamelspe: comparación reproducible con RCamelsPE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = '#>', fig.width = 8,
+                     fig.height = 6.5, dpi = 144)
+candidates <- c(system.file('benchmarks', package = 'rcamelspe'),
+                '../inst/benchmarks', 'inst/benchmarks')
+bench_dir <- candidates[file.exists(file.path(candidates, 'results', 'summary.csv'))][1]
+stopifnot(!is.na(bench_dir))
+results <- read.csv(file.path(bench_dir, 'results', 'summary.csv'))
+checks <- read.csv(file.path(bench_dir, 'results', 'equivalence.csv'))
+manifest <- read.csv(file.path(bench_dir, 'results', 'data-manifest.csv'))
+commit <- trimws(readLines(file.path(bench_dir, 'upstream-commit.txt'))[1])
+labels <- c(metadata = 'Metadatos: 136 estaciones', attributes = 'Atributos: siete tablas',
+  one = 'Una cuenca: todas las variables', five = 'Cinco cuencas: dos variables',
+  ten = 'Diez cuencas: dos variables',
+  twenty = 'Veinte cuencas: dos variables', forty = 'Cuarenta cuencas: dos variables',
+  global_all = 'Nacional: todas las variables',
+  global_projected = 'Nacional: dos variables', global_window = 'Nacional: dos variables, año 2000',
+  gauges = 'Geoespacial: estaciones')
+official <- results[results$package == 'RCamelsPE', ]
+ours <- results[results$package == 'rcamelspe', ]
+comparison <- merge(official, ours, by = 'scenario', suffixes = c('_ref', '_ours'))
+comparison <- comparison[match(names(labels), comparison$scenario), ]
+comparison$speedup <- comparison$median_s_ref / comparison$median_s_ours
+comparison$saving <- 100 * (1 - comparison$median_s_ours / comparison$median_s_ref)
+best <- comparison[which.max(comparison$speedup), ]
+```
+
+`rcamelspe` combina Arrow para leer y seleccionar datos con `collapse` para
+uniones y transformaciones. Esta viñeta evalúa el beneficio práctico frente al
+paquete [RCamelsPE de Harold Llauca](https://github.com/hllauca/RCamelsPE),
+utilizando los mismos archivos locales y consultas con resultados equivalentes.
+Destaca las ventajas **medidas** de nuestra implementación y permite identificar
+las operaciones donde conviene usarla. Los resultados corresponden a esta máquina
+y estas revisiones; no garantizan la misma aceleración en otros equipos.
+
+## Resultados: dónde es más eficiente rcamelspe
+
+En esta ejecución, `rcamelspe` obtuvo una mediana menor en
+**`r sum(comparison$speedup > 1)` de `r nrow(comparison)` escenarios**.
+La mayor aceleración fue **`r sprintf('%.2f', best$speedup)` veces** en
+**`r labels[best$scenario]`**, con una reducción de tiempo del
+**`r sprintf('%.1f', best$saving)` %**.
+Se verificó la equivalencia en todos los escenarios antes de medir.
+
+Cada celda muestra **mediana [percentil 25–percentil 75]**, en segundos,
+de siete repeticiones. La aceleración es
+`mediana(RCamelsPE) / mediana(rcamelspe)`: valores mayores que uno favorecen
+a `rcamelspe`; valores menores que uno favorecen a `RCamelsPE`.
+
+```{r results-table, echo=FALSE}
+format_time <- function(m, q1, q3) sprintf('%.3f [%.3f–%.3f]', m, q1, q3)
+table <- data.frame(
+  Escenario = unname(labels[comparison$scenario]),
+  RCamelsPE = format_time(comparison$median_s_ref, comparison$q25_s_ref, comparison$q75_s_ref),
+  rcamelspe = format_time(comparison$median_s_ours, comparison$q25_s_ours, comparison$q75_s_ours),
+  Aceleracion = sprintf('%.2fx', comparison$speedup), check.names = FALSE)
+knitr::kable(table)
+```
+
+```{r speedup-plot, echo=FALSE, fig.cap='Aceleración calculada a partir de las medianas. La línea vertical indica igualdad de tiempo.'}
+library(ggplot2)
+comparison$label <- factor(unname(labels[comparison$scenario]), levels = rev(unname(labels)))
+ggplot(comparison, aes(speedup, label)) +
+  geom_vline(xintercept = 1, colour = '#89939E', linetype = 2) +
+  geom_segment(aes(x = 1, xend = speedup, yend = label), colour = '#A8BCCB', linewidth = 1) +
+  geom_point(colour = '#245A73', size = 3) +
+  geom_text(aes(label = sprintf('%.2fx', speedup)), nudge_y = .23, size = 3.2) +
+  scale_x_log10() +
+  labs(x = 'Aceleración (escala logarítmica; mayor favorece a rcamelspe)', y = NULL) +
+  theme_minimal(base_size = 11) + theme(panel.grid.minor = element_blank())
+```
+
+Los intervalos intercuartílicos describen dispersión, no son intervalos de
+confianza. En operaciones de pocos milisegundos, diferencias pequeñas pueden
+cambiar con el ruido del sistema. Se muestran todos los escenarios y no se
+descartan repeticiones con recolección de basura.
+
+### Lectura práctica de los resultados
+
+```{r interpretation, echo=FALSE, results='asis'}
+for (key in c('global_all', 'global_projected', 'global_window', 'ten')) {
+  row <- comparison[comparison$scenario == key, ]
+  cat(sprintf('- **%s:** %.3f s con `rcamelspe` y %.3f s con `RCamelsPE` (%.2fx).\n',
+      labels[key], row$median_s_ours, row$median_s_ref, row$speedup))
+}
+```
+
+### Corrección del cuello de botella de diez cuencas
+
+La implementación anterior cambiaba al maestro al superar cinco cuencas:
+escaneaba unos 178 MiB incluso para una selección pequeña. El perfil de rutas
+mostró aproximadamente 0,16 s para diez archivos frente a 0,53 s para el maestro;
+con cuarenta archivos, la relación se invertía (0,66 s frente a 0,53 s).
+Estas mediciones exploratorias motivaron el cambio; la tabla principal contiene
+la validación repetida del código final.
+El perfil exploratorio (medianas de tres llamadas por ruta, dos hilos) se conserva
+en `inst/benchmarks/routing-profile.csv`; no se mezcla con el benchmark final.
+
+Ahora se compara el tamaño de los CSV solicitados, más una estimación de 4 MiB
+por apertura de archivo, con el tamaño del maestro. Así se tiene en cuenta tanto
+el volumen a leer como la sobrecarga de múltiples lectores. Es una heurística
+calibrada con estos datos, no una garantía del punto óptimo para todos los discos.
+`global = TRUE` mantiene el control explícito. No se introduce una caché de datos.
+
+```{r before-after, echo=FALSE}
+previous <- read.csv(file.path(bench_dir, 'before-routing', 'summary.csv'))
+old <- previous$median_s[previous$scenario == 'ten' & previous$package == 'rcamelspe']
+new <- comparison$median_s_ours[comparison$scenario == 'ten']
+knitr::kable(data.frame(Consulta = 'Diez cuencas',
+  Anterior_s = round(old, 3), Actual_s = round(new, 3),
+  Mejora_interna = sprintf('%.2fx', old / new)))
+```
+
+La referencia anterior se conserva en `inst/benchmarks/before-routing/`, junto
+con sus mediciones, entorno y hashes. Corresponde a una ejecución anterior;
+para comparar paquetes en la misma ejecución se debe usar la tabla principal.
+
+## Escenarios y decisiones de implementación
+
+El archivo maestro medido ocupa
+**`r sprintf('%.2f', manifest$bytes[manifest$file == '03_timeseries/timeseries.csv'] / 1024^2)` MiB**
+y contiene **`r format(checks$rows[checks$scenario == 'global_all'], big.mark = '.', decimal.mark = ',', scientific = FALSE)` filas**.
+Las consultas nacionales abarcan las 136 estaciones; las consultas por cuenca
+usan los mismos identificadores en ambos paquetes.
+
+| Escenario | Trabajo realizado por ambos paquetes | Utilidad |
+|---|---|---|
+| Metadatos | Leer `stations.csv` completo | Inventario de estaciones |
+| Atributos | Leer y unir las siete tablas por `gauge_id` | Regionalización |
+| Una cuenca | Serie completa, diez variables | Exploración de una estación |
+| Cinco, diez, veinte y cuarenta cuencas | Serie completa de `prec` y `flow_obs`, con identificadores | Procesamiento por lotes |
+| Nacional completo | Archivo maestro, todas las filas y variables | Análisis nacional |
+| Nacional proyectado | Archivo maestro, `prec` y `flow_obs`, con identificadores | Selección de variables |
+| Nacional, año 2000 | Misma selección, limitada a un año | Calibración y validación |
+| Geoespacial | GeoPackage de estaciones completo | Control basado en `sf` |
+
+Para los lotes se usa el modo habitual por cuenca de `RCamelsPE`.
+`rcamelspe` decide su ruta automáticamente según el coste estimado de los CSV.
+Se compara así la experiencia de uso
+sin forzar al paquete de referencia a una ruta menos conveniente. Los escenarios
+nacionales fuerzan `global = TRUE` en ambos paquetes.
+
+La revisión evaluada de `RCamelsPE` no ofrece argumentos de fecha en
+`read_timeseries()`. En el escenario anual, se añade `dplyr::filter()` a su
+lectura **dentro del tiempo medido**. `rcamelspe` aplica `start_date` y `end_date`
+en su consulta. Ambos entregan la misma ventana y las mismas columnas.
+
+### Cómo contribuyen nuestras mejoras
+
+- **Lectura selectiva:** `arrow::read_csv_arrow()` proyecta columnas para consultas
+  pequeñas. En la ruta nacional, `arrow::open_dataset()` aplica selección y
+  filtros antes de materializar el `data.frame` final.
+- **Uniones y lotes:** `collapse::join()` combina atributos y
+  `dplyr::bind_rows()` reúne archivos individuales conservando sus tipos.
+  Se reemplazó `collapse::rowbind()` tras detectar atributos corruptos en lotes
+  repetidos de diez cuencas durante la verificación.
+- **Consulta temporal integrada:** los límites de fecha se validan en el lector,
+  facilitando ventanas de trabajo reproducibles.
+- **Control de lectura:** `global = TRUE` permite elegir el maestro;
+  `date` y `gauge_id` pueden incluirse en la selección de variables.
+
+CSV es texto: proyectar y filtrar **no implica saltarse físicamente todos los
+bytes o filas descartados**, como podría ocurrir con datos columnarios
+particionados. El beneficio se evalúa con los resultados, sin equipararlo a una
+reducción proporcional de lectura del disco.
+
+La descarga de CAMELS-PE 1.0.1, el respeto de `version` y `set_path` y la protección
+frente a descargas parciales mejoran el uso del paquete, pero no intervienen en
+estos tiempos. Se excluye la red para separar lectura local y conexión.
+
+## Comprobación de equivalencia
+
+Antes del cronómetro, el script crea copias independientes para no alterar los
+resultados de los lectores. Ordena filas por `gauge_id` y `date`, ordena las
+columnas y normaliza contenedores (`tibble`/`data.frame`) y representaciones
+numéricas. Compara **todas las columnas**, con tolerancia numérica `1e-8`,
+conservando los valores faltantes. En objetos espaciales verifica geometrías y
+sistema de referencia. Una discrepancia detiene la ejecución. Esta validación
+no forma parte del tiempo medido.
+
+```{r equivalence-table, echo=FALSE}
+checks <- checks[match(names(labels), checks$scenario), ]
+knitr::kable(data.frame(Escenario = unname(labels[checks$scenario]),
+  Filas = checks$rows, Columnas = checks$columns,
+  Equivalente = ifelse(checks$equivalent, 'Sí', 'No')))
+```
+
+CAMELS-PE usa el calendario común 1981–2025. `flow_obs` y `flow_sim` están en
+mm/día y `prec_var` es varianza de precipitación. Los `NA` permanecen como
+faltantes: no se rellenan para mejorar los tiempos. El conjunto local se
+identifica mediante hashes; no se le atribuye una versión de Zenodo sin
+verificar su procedencia.
+
+La tabla de equivalencia describe los archivos efectivamente medidos, no una
+certificación del contenido de una publicación. Por ejemplo, el número de columnas
+de la unión de atributos incluye `gauge_id` y debe interpretarse según el
+diccionario local, sin sustituirlo por el total anunciado de otra versión.
+
+### Qué sabemos sobre memoria
+
+Se conserva `object.size()` de la salida en `equivalence.csv`. **No mide el pico
+de RAM ni asignaciones temporales**. Arrow puede asignar memoria fuera del gestor
+de R; un perfil de asignaciones de R tampoco bastaría para comparar consumo total.
+No se afirma un ahorro porcentual de memoria sin medirlo a nivel del proceso.
+
+## Método reproducible
+
+1. Ambos paquetes se cargan antes de medir y leen el mismo directorio local.
+2. Se eligen los primeros identificadores ordenados alfabéticamente, evitando
+   seleccionar manualmente cuencas favorables.
+3. Se fijan dos hilos tanto para Arrow como para `readr`.
+4. Se ejecuta un calentamiento por paquete y escenario, utilizado también para
+   verificar equivalencia. La prueba es de **caché caliente**: no se vacía la
+   caché del sistema operativo.
+5. Se realizan siete repeticiones, aleatorizando el orden de los paquetes en
+   cada par con semilla `20260905`. La recolección explícita de basura ocurre
+   antes del cronómetro; la que ocurra dentro de la llamada sí queda incluida.
+6. Se registra tiempo de pared con `Sys.time()`. Para metadatos y estaciones
+   espaciales se promedian 20 llamadas por repetición, evitando tiempos nulos por
+   resolución del reloj; los demás escenarios usan una llamada por repetición.
+   Se excluyen instalación, calentamiento, validación y generación del informe.
+
+Referencia: `RCamelsPE` 1.0.1, revisión
+[`40af1422d2b9`](https://github.com/hllauca/RCamelsPE/tree/40af1422d2b9893973ffae7f4678136860f09c52).
+La versión local es `rcamelspe` 0.1.0 con las mejoras del repositorio;
+`code-manifest.csv` registra hashes del código utilizado.
+
+### Volver a ejecutar
+
+La medición intensiva es explícita: no se dispara al construir la documentación.
+Los CSV incluidos permiten regenerar esta viñeta sin descargar datos ni instalar
+el paquete de referencia. Para medir de nuevo, desde la raíz del repositorio:
+
+```sh
+git clone https://github.com/hllauca/RCamelsPE.git tmp/benchmark-reference
+git -C tmp/benchmark-reference checkout 40af1422d2b9893973ffae7f4678136860f09c52
+```
+
+```{r reproduce, eval=FALSE}
+# Preparación (solo una vez):
+install.packages(c('pkgload', 'remotes'))
+remotes::install_deps('.', dependencies = TRUE)
+remotes::install_deps('tmp/benchmark-reference', dependencies = TRUE)
+# Desde una terminal, sustituir las rutas:
+# Rscript inst/benchmarks/run-benchmark.R /datos/CAMELS-PE tmp/benchmark-reference inst/benchmarks/results 7
+
+rmarkdown::render('vignettes/benchmark.Rmd')
+```
+
+`inst/benchmarks/results/` contiene `timings.csv` (cada repetición),
+`summary.csv` (estadísticos), `equivalence.csv` (verificaciones),
+`data-manifest.csv` (tamaños y hashes de entrada), `code-manifest.csv`
+(código local) y `session.txt` (entorno). Si se cambia la revisión de referencia,
+hay que actualizar `upstream-commit.txt` junto con los resultados.
+
+```{r environment, echo=FALSE}
+cat(readLines(file.path(bench_dir, 'results', 'session.txt')), sep = '\n')
+```
+
+## Cómo aprovechar rcamelspe
+
+Solicita las variables y fechas necesarias, reutiliza la ruta local y consulta
+el diccionario antes del análisis. Este patrón aprovecha la lectura selectiva:
+
+```{r example, eval=FALSE}
+path <- rcamelspe::get_camels_pe_path()
+daily <- rcamelspe::read_timeseries(
+  global = TRUE,
+  vars = c('date', 'gauge_id', 'prec', 'flow_obs'),
+  start_date = '2000-01-01', end_date = '2000-12-31', path = path
+)
+```
+
+La elección depende del escenario. Consultas selectivas y lotes muestran el
+valor del motor de lectura; operaciones pequeñas o basadas en el mismo lector
+espacial pueden tener diferencias reducidas. La tabla completa permite justificar
+esa elección sin extrapolar la aceleración máxima a todo el paquete.

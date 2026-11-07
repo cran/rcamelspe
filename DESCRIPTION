@@ -1,0 +1,37 @@
+Package: rcamelspe
+Title: Catchment Attributes and Meteorology for Peru (CAMELS-PE)
+Version: 0.1.0
+Authors@R: 
+    c(person(given = "Paul E.",
+                 family = "Santos Andrade",
+                 role = c("aut", "cre", "cph"),
+                 email = "paulefrens@gmail.com",
+                 comment = c(ORCID = "0000-0002-6635-0375"))) 
+Description: Download, load, manage, and filter the Catchment Attributes and
+    Meteorology for Large-Sample Studies - Peru (CAMELS-PE) dataset for
+    hydroclimatic and hydrological analysis. Offers high-performance reading
+    and manipulation of large datasets using the 'arrow' and 'collapse'
+    packages. Provides tools to extract catchment-scale meteorological time
+    series, physical attributes, and spatial boundaries for 136 catchments,
+    with 10 daily variables on the 1981-2025 calendar and 79 attributes.
+    CAMELS-PE data are distributed separately under CC BY 4.0
+    <doi:10.5281/zenodo.21195425>.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: arrow, cli, collapse (>= 2.0.0), dplyr, ggplot2, sf,
+        tidyselect
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+URL: https://github.com/PaulESantos/rcamelspe,
+        https://paulesantos.github.io/rcamelspe/
+BugReports: https://github.com/PaulESantos/rcamelspe/issues
+Config/roxygen2/version: 8.1.1
+NeedsCompilation: no
+Packaged: 2026-10-24 03:36:05 UTC; PC
+Author: Paul E. Santos Andrade [aut, cre, cph] (ORCID:
+    <https://orcid.org/0000-0002-6635-0375>)
+Maintainer: Paul E. Santos Andrade <paulefrens@gmail.com>
+Repository: CRAN
+Date/Publication: 2026-11-07 18:10:02 UTC

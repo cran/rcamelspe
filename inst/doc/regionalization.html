@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Regionalización Hidroclimática de Cuencas en el Perú</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Regionalización Hidroclimática de Cuencas
+en el Perú</h1>
+
+
+
+<p>La <strong>regionalización hidrológica</strong> es un procedimiento
+fundamental en la hidrología científica y aplicada. Su objetivo
+principal es clasificar cuencas hidrográficas en regiones homogéneas que
+comparten características físicas y climáticas similares. Esta técnica
+es de gran utilidad para:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Estimación en cuencas no instrumentadas</strong>: Transferir
+parámetros de modelos o firmas hidrológicas desde cuencas con datos
+(donantes) hacia cuencas sin mediciones de caudal (receptoras).</li>
+<li><strong>Comprensión del régimen de caudales</strong>: Identificar
+los principales factores físicos (pendiente, elevación) y climáticos
+(precipitación, aridez) que gobiernan la respuesta hidrológica
+regional.</li>
+</ol>
+<p>Este tutorial muestra cómo utilizar el paquete <code>rcamelspe</code>
+para cargar atributos climáticos y topográficos, clasificar las 136
+cuencas del Perú utilizando un algoritmo de agrupamiento
+(<em>K-means</em>), y mapear las regiones resultantes.</p>
+<hr />
+<div id="carga-de-librerías-y-configuración" class="section level2">
+<h2>1. Carga de Librerías y Configuración</h2>
+<p>Primero, cargamos el paquete <code>rcamelspe</code> junto con
+<code>ggplot2</code> y <code>sf</code> para el manejo espacial y la
+visualización.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;rcamelspe&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  pkg_dir <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">&quot;../DESCRIPTION&quot;</span>)) <span class="st">&quot;..&quot;</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">&quot;DESCRIPTION&quot;</span>)) <span class="st">&quot;.&quot;</span> <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pkg_dir)) {</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    r_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="fu">file.path</span>(pkg_dir, <span class="st">&quot;R&quot;</span>), <span class="at">full.names =</span> <span class="cn">TRUE</span>, <span class="at">pattern =</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">.[rR]$&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="fu">invisible</span>(<span class="fu">lapply</span>(r_files, sys.source, <span class="at">envir =</span> <span class="fu">globalenv</span>()))</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  }</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>}</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;rcamelspe&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="fu">library</span>(rcamelspe)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>}</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>old_camels_path <span class="ot">&lt;-</span> <span class="fu">getOption</span>(<span class="st">&quot;rcamelspe.path&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co"># Configurar la ruta al dataset CAMELS-PE si está disponible localmente</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co"># Buscamos rutas relativas comunes en el espacio de trabajo</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="st">&quot;raw-data/CAMELS-PE&quot;</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">dir.exists</span>(path) <span class="sc">&amp;&amp;</span> <span class="fu">exists</span>(<span class="st">&quot;set_camels_pe_path&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;function&quot;</span>)) {</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="fu">set_camels_pe_path</span>(path)</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">dir.exists</span>(<span class="st">&quot;../raw-data/CAMELS-PE&quot;</span>) <span class="sc">&amp;&amp;</span> <span class="fu">exists</span>(<span class="st">&quot;set_camels_pe_path&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;function&quot;</span>)) {</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="fu">set_camels_pe_path</span>(<span class="st">&quot;../raw-data/CAMELS-PE&quot;</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">dir.exists</span>(<span class="st">&quot;../../raw-data/CAMELS-PE&quot;</span>) <span class="sc">&amp;&amp;</span> <span class="fu">exists</span>(<span class="st">&quot;set_camels_pe_path&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;function&quot;</span>)) {</span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="fu">set_camels_pe_path</span>(<span class="st">&quot;../../raw-data/CAMELS-PE&quot;</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>}</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co"># Verificar si el dataset está disponible antes de ejecutar</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>has_data <span class="ot">&lt;-</span> <span class="fu">exists</span>(<span class="st">&quot;get_camels_pe_path&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;function&quot;</span>) <span class="sc">&amp;&amp;</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">is.null</span>(<span class="fu">get_camels_pe_path</span>()) <span class="sc">&amp;&amp;</span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>  <span class="fu">dir.exists</span>(<span class="fu">get_camels_pe_path</span>())</span></code></pre></div>
+<hr />
+</div>
+<div id="preparación-y-carga-de-datos" class="section level2">
+<h2>2. Preparación y Carga de Datos</h2>
+<p>Cargamos de forma eficiente los atributos físicos de interés y los
+límites geoespaciales de las cuencas. Utilizaremos variables climáticas
+y topográficas clave:</p>
+<ul>
+<li><strong>Física/Topografía</strong>: Área de la cuenca
+(<code>area</code>), elevación media (<code>elev_mean</code>) y
+pendiente media (<code>slope_mean</code>).</li>
+<li><strong>Clima</strong>: Precipitación media diaria
+(<code>p_mean</code>) y el índice de aridez (<code>aridity</code>).</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Verificar si el dataset está disponible antes de ejecutar</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>has_data <span class="ot">&lt;-</span> <span class="fu">exists</span>(<span class="st">&quot;get_camels_pe_path&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;function&quot;</span>) <span class="sc">&amp;&amp;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">is.null</span>(<span class="fu">get_camels_pe_path</span>()) <span class="sc">&amp;&amp;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">dir.exists</span>(<span class="fu">get_camels_pe_path</span>())</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="cf">if</span> (has_data) {</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="co"># Cargar atributos topográficos y climáticos mezclados por gauge_id</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  attrs <span class="ot">&lt;-</span> <span class="fu">load_pe_attributes</span>(<span class="at">attributes =</span> <span class="fu">c</span>(<span class="st">&quot;topographic&quot;</span>, <span class="st">&quot;climatic&quot;</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  </span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="co"># Cargar geometrías vectoriales de las cuencas (polígonos GPKG)</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  catchments <span class="ot">&lt;-</span> <span class="fu">load_pe_geospatial</span>(<span class="at">type =</span> <span class="st">&quot;catchments&quot;</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  </span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="co"># Seleccionar las variables numéricas para el análisis</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  clustering_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;area&quot;</span>, <span class="st">&quot;elev_mean&quot;</span>, <span class="st">&quot;slope_mean&quot;</span>, <span class="st">&quot;p_mean&quot;</span>, <span class="st">&quot;aridity&quot;</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  </span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="co"># Filtrar registros completos</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  data_clustering <span class="ot">&lt;-</span> attrs[, <span class="fu">c</span>(<span class="st">&quot;gauge_id&quot;</span>, clustering_vars)]</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  data_clustering <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(data_clustering)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  </span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="co"># Vista rápida de los atributos cargados</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="fu">head</span>(data_clustering)</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>}</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;      gauge_id      area elev_mean slope_mean p_mean aridity</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; 1 PE_472A9204  9187.868  4210.225     11.325  2.297   1.465</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; 2   PE_210003  2008.790  4659.078     17.753  1.842   1.578</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; 3   PE_204617 13224.802  4213.036     12.651  1.503   2.423</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; 4 PE_472935F2  9576.154  4196.945     11.486  2.302   1.455</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; 5   PE_210406  2867.025  4467.149      3.240  2.058   1.627</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; 6   PE_270503   390.800  3990.867      3.965  2.181   1.462</span></span></code></pre></div>
+<hr />
+</div>
+<div id="preprocesamiento-y-agrupamiento-clustering-k-means" class="section level2">
+<h2>3. Preprocesamiento y Agrupamiento (Clustering K-means)</h2>
+<p>Dado que las variables físicas y climáticas tienen unidades y rangos
+drásticamente diferentes (por ejemplo, el área en <span class="math inline">\(km^2\)</span> vs el índice de aridez que es
+adimensional), debemos <strong>escalar</strong> (estandarizar) los datos
+para que tengan media igual a 0 y desviación estándar de 1.</p>
+<p>Posteriormente, aplicamos el algoritmo clásico de particionamiento
+<strong>K-means</strong> seleccionando <span class="math inline">\(K =
+3\)</span> grupos para identificar tres macrorregiones hidroclimáticas
+representativas en el Perú.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="cf">if</span> (has_data) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="co"># Estandarizar atributos</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  scaled_data <span class="ot">&lt;-</span> <span class="fu">scale</span>(data_clustering[, clustering_vars])</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  </span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="co"># Ejecutar algoritmo K-means si hay suficientes cuencas, o partición adaptativa</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Para reproducibilidad</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(data_clustering) <span class="sc">&gt;=</span> <span class="dv">3</span>) {</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    k_centers <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">3</span>, <span class="fu">nrow</span>(data_clustering))</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    kmeans_res <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(scaled_data, <span class="at">centers =</span> k_centers, <span class="at">nstart =</span> <span class="dv">25</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    data_clustering<span class="sc">$</span>region <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(kmeans_res<span class="sc">$</span>cluster)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    data_clustering<span class="sc">$</span>region <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(data_clustering)))</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  }</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  </span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="co"># Contar cuántas cuencas pertenecen a cada región</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  <span class="fu">table</span>(data_clustering<span class="sc">$</span>region)</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>}</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;  1  2  3 </span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 43 73 20</span></span></code></pre></div>
+<hr />
+</div>
+<div id="unión-geoespacial-de-resultados" class="section level2">
+<h2>4. Unión Geoespacial de Resultados</h2>
+<p>Unimos nuestros resultados de regionalización con los límites
+geográficos de las cuencas. Aprovechamos la función de alto rendimiento
+<code>collapse::join()</code> para acelerar el proceso y nos aseguramos
+de preservar la clase de objeto geoespacial <code>sf</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="cf">if</span> (has_data) {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="co"># Realizar un Left Join rápido entre el objeto espacial y los resultados de clustering</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  catchments_regions <span class="ot">&lt;-</span> collapse<span class="sc">::</span><span class="fu">join</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    catchments, </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    data_clustering[, <span class="fu">c</span>(<span class="st">&quot;gauge_id&quot;</span>, <span class="st">&quot;region&quot;</span>)], </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="at">on =</span> <span class="st">&quot;gauge_id&quot;</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>    <span class="at">how =</span> <span class="st">&quot;left&quot;</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  )</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="co"># Forzar a sf si collapse limpió los atributos espaciales</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">inherits</span>(catchments_regions, <span class="st">&quot;sf&quot;</span>)) {</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>    catchments_regions <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>(catchments_regions)</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  }</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>}</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; left join: catchments[gauge_id] 136/136 (100%) &lt;1:1st&gt; y[gauge_id] 136/136 (100%)</span></span></code></pre></div>
+<hr />
+</div>
+<div id="visualización-de-las-regiones-hidroclimáticas" class="section level2">
+<h2>5. Visualización de las Regiones Hidroclimáticas</h2>
+<p>Finalmente, graficamos el mapa temático de las cuencas hidrográficas
+coloreándolas de acuerdo a la región a la que fueron asignadas por el
+algoritmo.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(catchments_regions) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> region), <span class="at">color =</span> <span class="st">&quot;grey40&quot;</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Set2&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Región Hidroclimática</span><span class="sc">\n</span><span class="st">(Grupo)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">&quot;Regionalización Hidroclimática de Cuencas en el Perú&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>      <span class="at">subtitle =</span> <span class="st">&quot;Clasificación basada en K-means (K = 3) sobre atributos físicos y climáticos&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>      <span class="at">caption =</span> <span class="st">&quot;Datos físicos y climáticos extraídos de CAMELS-PE&quot;</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>      <span class="at">y =</span> <span class="cn">NULL</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>      <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">&quot;grey30&quot;</span>, <span class="at">size =</span> <span class="dv">9</span>),</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>      <span class="at">legend.position =</span> <span class="st">&quot;right&quot;</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>      <span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">&quot;grey90&quot;</span>, <span class="at">linewidth =</span> <span class="fl">0.2</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    )</span></code></pre></div>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt width="100%" style="display: block; margin: auto;" /></p>
+<hr />
+</div>
+<div id="interpretación-de-las-regiones-hidroclimáticas" class="section level2">
+<h2>6. Interpretación de las Regiones Hidroclimáticas</h2>
+<p>Para entender qué representa cada clúster, podemos resumir el
+promedio de los atributos físicos y climáticos para cada grupo
+identificado:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="cf">if</span> (has_data) {</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="co"># Calcular promedios grupales utilizando collapse::collap</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  resumen_regiones <span class="ot">&lt;-</span> collapse<span class="sc">::</span><span class="fu">collap</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    data_clustering[, <span class="fu">c</span>(<span class="st">&quot;region&quot;</span>, clustering_vars)],</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    <span class="at">by =</span> <span class="sc">~</span>region,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="at">FUN =</span> mean</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  )</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  </span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">print</span>(resumen_regiones)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>}</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   region       area elev_mean slope_mean   p_mean  aridity</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 1      1   2326.807  3921.109   21.81977 1.411465 3.632279</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 2      2   6346.464  3070.752   10.34799 2.796192 1.375274</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 3      3 167035.938  1585.089   11.97990 7.779050 0.474800</span></span></code></pre></div>
+<ul>
+<li><strong>Región 1</strong>: Cuencas con menor precipitación media y
+alta aridez (típicamente asociadas a la vertiente árida del
+Pacífico).</li>
+<li><strong>Región 2</strong>: Cuencas de gran altitud y pendientes
+pronunciadas (zonas andinas de cabecera de cuenca).</li>
+<li><strong>Región 3</strong>: Cuencas con altas precipitaciones y menor
+aridez (regiones húmedas de la vertiente del Atlántico/Amazonía).</li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
